@@ -1,10 +1,6 @@
 pipeline {
   agent any
 
-  environment {
-    SONAR_TOKEN = credentials('SONAR_TOKEN') // Use the ID of the secret text credential stored in Jenkins
-  }
-
   stages {
     stage('Checkout') {
       steps {
@@ -35,11 +31,13 @@ pipeline {
 
     stage('SonarCloud Analysis') {
       steps {
-        sh '''
-          sonar-scanner \
-          -Dsonar.login=$SONAR_TOKEN
-        '''
+        withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
+          sh '''
+            echo "Using token: $SONAR_TOKEN"
+             sonar-scanner -Dsonar.login=$SONAR_TOKEN
+          '''
+        }
       }
-    }
+    } 
   }
 }
